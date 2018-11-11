@@ -129,8 +129,11 @@ __Section 6:  Hadoop Ecosystem - Pig__
 ## Installation Instructions
 
 _System Requirement:_
+
 OS  : Centos 6 / MacOs
+
 RAM : 8+ GB 
+
 HDD : 50 GB (non root)
 
 _Software requirement:_
@@ -138,17 +141,24 @@ _Software requirement:_
 Please download and activate  below softwares or VM's
 
 Latest Virtual Box   : https://www.virtualbox.org/wiki/Downloads 
+
 Latest VM : https://my.vmware.com/en/web/vmware/free#desktop_end_user_computing/vmware_workstation_player/15_0
+
 VMware Fusion (For Mac) :  https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_fusion/11_0 
+
 Putty (for windows)  / Terminal : https://www.putty.org/ 
+
 Browser - FireFox / Chrome
+
 Cloudera VM & VirtualBox : https://www.cloudera.com/downloads/quickstart_vms/5-13.html 
 
 
 _Download ElasticSeacrh Virtual Box_
 
 https://bitnami.com/stack/elasticsearch/virtual-machine 
+
 https://docs.bitnami.com/virtual-machine/faq/get-started/connect-ssh/
+
 https://docs.bitnami.com/virtual-machine/faq/get-started/find-credentials/
 
 _Create Git Account:_  
@@ -158,3 +168,4 @@ https://github.com/
 _Setup Elastic Search on Cloud_
 
 https://www.elastic.co/cloud/elasticsearch-service/signup 
+
