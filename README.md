@@ -1,7 +1,6 @@
 # Simplify - Big Data Analytics
 
-This repository contains the code for building Big Data Analytics and Data Science (Machine Learning) from scratch.
-
+This repository contains the code for building Big Data Analytics
 
 
 ## Workshop Outline
@@ -118,95 +117,44 @@ __Section 6:  Hadoop Ecosystem - Pig__
 
  __Section 11: NoSQL Database - Elastic Search__
 
-            11.1 Intorduction to Python
+            11.1 Intorduction to Elastic Search
 
-            11.2 Programming Basics
+            11.2 ES Key Concepts
 
-            11.3 Application of Python
+            11.3 ES Operations
 
-            11.4 Summary                  
-
-
-## Day 4
-
- __Section 12: Data Science - Machine Learning__
-
-
-## Dependencies 
-* Python 3.3+
-* math
-* numpy
-* pandas
-* scikit-learn
-* matplotlib
-* seaborn
-* jupyter notebook
+            11.4 Analytics using ES            
 
 
 ## Installation Instructions
 
-### Windows OS
+_System Requirement:_
+OS  : Centos 6 / MacOs
+RAM : 8+ GB 
+HDD : 50 GB (non root)
 
-__Install Python3 (install python 3.6.4)__
-    
-* Step 1: Download python form [this link](https://www.python.org/downloads/)
+_Software requirement:_
 
-* Step 2: Refer [this link](http://www.openbookproject.net/courses/webappdev/units/softwaredesign/resources/install_python_win7.html) or [this link](https://www.youtube.com/watch?v=V_ACbv4329E) in oreder to install python
+Please download and activate  below softwares or VM's
 
-__Install anaconda__
+Latest Virtual Box   : https://www.virtualbox.org/wiki/Downloads 
+Latest VM : https://my.vmware.com/en/web/vmware/free#desktop_end_user_computing/vmware_workstation_player/15_0
+VMware Fusion (For Mac) :  https://my.vmware.com/en/web/vmware/info/slug/desktop_end_user_computing/vmware_fusion/11_0 
+Putty (for windows)  / Terminal : https://www.putty.org/ 
+Browser - FireFox / Chrome
+Cloudera VM & VirtualBox : https://www.cloudera.com/downloads/quickstart_vms/5-13.html 
 
-* Step 1: Download Anaconda 5.1 (python 3.6 version) using [this link](https://www.anaconda.com/download/#windows)
 
-* Step 2: See the installation instruction given on [this link](https://conda.io/docs/user-guide/install/windows.html#install-win-silent)
+_Download ElasticSeacrh Virtual Box_
 
-Note: If you have any other version of python then install anaconda which supports that particular version of python
+https://bitnami.com/stack/elasticsearch/virtual-machine 
+https://docs.bitnami.com/virtual-machine/faq/get-started/connect-ssh/
+https://docs.bitnami.com/virtual-machine/faq/get-started/find-credentials/
 
-__Install dependencies using conda__
-```
-    numpy:            In-built installed with anaconda
-    scipy:            In-built installed with anaconda
-    scikit-learn:     In-built installed with anaconda
-    Pandas:           In-built installed with anaconda
-    matplotlib:       In-built installed with anaconda 
-    seaborn:          In-built installed with anaconda
-    jupyter notebook: In-built installed with anaconda
-    jupyter lab:      In-built installed with anaconda
-```
+_Create Git Account:_  
 
-* In order to start jupyter notebook execute the given command on cmd/terminal
+https://github.com/ 
 
-  `$ jupyter notebook`
+_Setup Elastic Search on Cloud_
 
-### Linux OS
-
-__Python and pip setup__
-
-* Python 3 is already installed on linux OS
-* Install pip for Linux from [here](https://github.com/jalajthanaki/NLPython/blob/master/ch1/installation_guide/NLTK%2BSetup.md)
-
-__Command for installing dependencies__
-```
-numpy:            $ sudo pip install numpy
-scipy:            $ sudo pip install scipy
-scikit-learn:     $ sudo pip install -U scikit-learn
-Pandas:           $ sudo pip install pandas
-matplotlib: 
-                  $ sudo apt-get install libfreetype6-dev libpng-dev
-                  $ sudo pip install matplotlib 
-seaborn:          $ sudo pip install seaborn
-jupyter notebook: $ sudo apt-get -y install ipython ipython-notebook
-                  $ sudo -H pip install jupyter
-jupyter lab       $ sudo pip install jupyterlab
-
-```
-## Usage
-
-* For section 1: use `Understand_LR.ipynb` ipython notebook
-
-* For section 2: use `LR_from_Scratch.ipynb` ipython notebook
-
-* For section 3: use `Spam_ham_Classifier.ipynb` ipython notebook
-
-## Special Thanks
-
-Thanks IIT-Bombay analytics club for hosting this event.
+https://www.elastic.co/cloud/elasticsearch-service/signup 
