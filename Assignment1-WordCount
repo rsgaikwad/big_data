@@ -1,4 +1,5 @@
-1.Create the input directory in HDFS:
+## Assignment 
+# 1.Create the input directory in HDFS:
   $ sudo su hdfs
   $ hadoop fs -mkdir /user/cloudera 
   $ hadoop fs -chown cloudera /user/cloudera
