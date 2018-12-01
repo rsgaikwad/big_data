@@ -1,0 +1,32 @@
+1.Create the input directory in HDFS:
+  $ sudo su hdfs
+  $ hadoop fs -mkdir /user/cloudera 
+  $ hadoop fs -chown cloudera /user/cloudera
+  $ exit
+  $ sudo su cloudera
+  $ hadoop fs -mkdir /user/cloudera/wordcount /user/cloudera/wordcount/input
+2.Create sample text files as input and move to the input directory:
+  $ echo "Hello World Bye World" > file0
+  $ echo "Hello Hadoop Goodbye Hadoop" > file1
+  $ hadoop fs -put file* /user/cloudera/wordcount/input
+3.Compile WordCount.java:
+  $ mkdir wordcount_classes
+  $ javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/* WordCount.java -d wordcount_classes/
+  where <classpath> is:
+  o	CD5 : /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/*
+  o	CD4 : /opt/cloudera/parcels/CDH/lib/hadoop/*:/opt/cloudera/parcels/CDH/lib/hadoop/client-0.20/*
+          Package installation -/usr/lib/hadoop/*:/usr/lib/hadoop/client-0.20/*
+  o	CD3 : /usr/lib/hadoop-0.20/hadoop-0.20.2-cdh3u6-core.jar
+4.Create a JAR:
+  $ jar -cvf wordcount.jar -C wordcount_classes/ . 
+5.Run the application:
+  $ hadoop jar wordcount.jar org.myorg.WordCount /user/cloudera/wordcount/input /user/cloudera/wordcount/output
+6.Examine the output:
+  $ hadoop fs -cat /user/cloudera/wordcount/output/part-00000
+    Bye 1
+    Goodbye 1
+    Hadoop 2
+    Hello 2
+    World 2
+7.Remove the output directory /user/cloudera/wordcount/output so that you can run the sample again:
+  $ hadoop fs -rm -r /user/cloudera/wordcount/output
