@@ -1,0 +1,469 @@
+1. Download files from github 
+
+2. Upload / Keep all files in your Unix directory e.g. /home/cloudera/hive/
+
+Rahuls-MacBook-Pro-5% ls -ltrh
+total 4504
+-rw-r--r--@ 1 lt-mac-rgaikwad  staff   2.2M Jul 21  2016 truck_event_text_partition.csv
+-rw-r--r--@ 1 lt-mac-rgaikwad  staff    26K Aug  6  2016 timesheet.csv
+-rw-r--r--@ 1 lt-mac-rgaikwad  staff   2.0K Sep  8  2016 drivers.csv
+
+3. CREATE TABLE TEMP_DRIVERS
+
+[cloudera@quickstart ~]$ hive
+Logging initialized using configuration in jar:file:/usr/lib/hive/lib/hive-common-1.1.0-cdh5.13.0.jar!/hive-log4j.properties
+WARNING: Hive CLI is deprecated and migration to Beeline is recommended.
+hive> show databases;
+OK
+default
+Time taken: 40.628 seconds, Fetched: 1 row(s)
+hive>CREATE TABLE temp_drivers (col_value STRING) STORED AS TEXTFILE;
+OK
+Time taken: 0.223 seconds
+hive> show databases;
+OK
+default
+Time taken: 0.012 seconds, Fetched: 1 row(s)
+hive> show tables;
+OK
+temp_drivers
+Time taken: 0.029 seconds, Fetched: 1 row(s)
+hive> select * from temp_drivers;
+OK
+Time taken: 0.348 seconds
+
+4. CREATE HDFS directory to put all files from Unix to HDFS e.g.  /user/cloudera/hive/
+
+hadoop fs -mkdir /user/cloudera/hive
+
+5. PUT ALL file from local Unix (/home/cloudera/hive) to HDFS (/user/cloudera/hive/)
+hadoop fs -put drivers.csv /user/cloudera/hive
+
+4. CREATE QUERY TO POPULATE HIVE TABLE TEMP_DRIVERS WITH DRIVERS.CSV DATA
+
+LOAD DATA INPATH '/user/cloudera/hive/drivers.csv' OVERWRITE INTO TABLE temp_drivers;
+
+Loading data to table default.temp_drivers
+chgrp: changing ownership of 'hdfs://quickstart.cloudera:8020/user/hive/warehouse/temp_drivers/drivers.csv': User does not belong to supergroup
+Table default.temp_drivers stats: [numFiles=1, numRows=0, totalSize=2043, rawDataSize=0]
+OK
+Time taken: 0.444 seconds
+
+5. Check table , all csv data should get uploaded in hive table e.g. temp_drivers
+
+hive> select * from temp_drivers;
+OK
+driverId,name,ssn,location,certified,wage-plan
+10,George Vetticaden,621011971,244-4532 Nulla Rd.,N,miles
+11,Jamie Engesser,262112338,366-4125 Ac Street,N,miles
+12,Paul Coddin,198041975,Ap #622-957 Risus. Street,Y,hours
+13,Joe Niemiec,139907145,2071 Hendrerit. Ave,Y,hours
+14,Adis Cesir,820812209,Ap #810-1228 In St.,Y,hours
+15,Rohit Bakshi,239005227,648-5681 Dui- Rd.,Y,hours
+16,Tom McCuch,363303105,P.O. Box 313- 962 Parturient Rd.,Y,hours
+17,Eric Mizell,123808238,P.O. Box 579- 2191 Gravida. Street,Y,hours
+18,Grant Liu,171010151,Ap #928-3159 Vestibulum Av.,Y,hours
+19,Ajay Singh,160005158,592-9430 Nonummy Avenue,Y,hours
+20,Chris Harris,921812303,883-2691 Proin Avenue,Y,hours
+21,Jeff Markham,209408086,Ap #852-7966 Facilisis St.,Y,hours
+22,Nadeem Asghar,783204269,154-9147 Aliquam Ave,Y,hours
+23,Adam Diaz,928312208,P.O. Box 260- 6127 Vitae Road,Y,hours
+24,Don Hilborn,254412152,4361 Ac Road,Y,hours
+25,Jean-Philippe Playe,913310051,P.O. Box 812- 6238 Ac Rd.,Y,hours
+26,Michael Aube,124705141,P.O. Box 213- 8948 Nec Ave,Y,hours
+27,Mark Lochbihler,392603159,8355 Ipsum St.,Y,hours
+28,Olivier Renault,959908181,P.O. Box 243- 6509 Erat. Avenue,Y,hours
+29,Teddy Choi,185502192,P.O. Box 106- 7003 Amet Rd.,Y,hours
+30,Dan Rice,282307061,Ap #881-9267 Mollis Avenue,Y,hours
+31,Rommel Garcia,858912101,P.O. Box 945- 6015 Sociis St.,Y,hours
+32,Ryan Templeton,290304287,765-6599 Egestas. Av.,Y,hours
+33,Sridhara Sabbella,967409015,Ap #477-2507 Sagittis Avenue,Y,hours
+34,Frank Romano,391407216,Ap #753-6814 Quis Ave,Y,hours
+35,Emil Siemes,971401151,321-2976 Felis Rd.,Y,hours
+36,Andrew Grande,245303216,Ap #685-9598 Egestas Rd.,Y,hours
+37,Wes Floyd,190504074,P.O. Box 269- 9611 Nulla Street,Y,hours
+38,Scott Shaw,386411175,276 Lobortis Road,Y,hours
+39,David Kaiser,967706052,9185 At Street,Y,hours
+40,Nicolas Maillard,208510217,1027 Quis Rd.,Y,hours
+41,Greg Phillips,308103116,P.O. Box 847- 5961 Arcu. Road,Y,hours
+42,Randy Gelhausen,853302254,145-4200 In- Avenue,Y,hours
+43,Dave Patton,977706052,3028 A- St.,Y,hours
+Time taken: 0.091 seconds, Fetched: 35 row(s)
+hive>
+
+
+6. CREATE TABLE DRIVERS
+
+Now that we have read the data in we can start working with it. The next thing we want to do extract the data. So first we will type in a query to create a new table called drivers to hold the data. That table will have six columns for driverId, name, ssn, location, certified and the wage-plan of drivers.
+
+hive> CREATE TABLE drivers (driverId INT, name STRING, ssn BIGINT,location STRING, certified STRING, wageplan STRING;
+OK
+Time taken: 0.078 seconds
+
+
+7. CREATE QUERY TO EXTRACT DATA FROM TEMP_DRIVERS AND STORE IT TO DRIVERS
+Then we extract the data we want from temp_drivers and copy it into drivers. We will do this with a regexp pattern. To do this we are going to build up a multi-line query. The six regexp_extract calls are going to extract the driverId, name, ssn, location, certified and the wage-plan fields from the table temp_drivers. When you are done typing the query it will look like this. Be careful as there are no spaces in the regular expression pattern.
+
+
+hive> insert overwrite table drivers
+SELECT
+  regexp_extract(col_value, '^(?:([^,]*),?){1}', 1) driverId,
+  regexp_extract(col_value, '^(?:([^,]*),?){2}', 1) name,
+  regexp_extract(col_value, '^(?:([^,]*),?){3}', 1) ssn,
+  regexp_extract(col_value, '^(?:([^,]*),?){4}', 1) location,
+  regexp_extract(col_value, '^(?:([^,]*),?){5}', 1) certified,
+  regexp_extract(col_value, '^(?:([^,]*),?){6}', 1) wageplan
+from temp_drivers;
+
+
+E.g.
+hive> insert overwrite table drivers
+    > SELECT
+    >   regexp_extract(col_value, '^(?:([^,]*),?){1}', 1) driverId,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){2}', 1) name,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){3}', 1) ssn,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){4}', 1) location,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){5}', 1) certified,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){6}', 1) wageplan
+    >
+    > from temp_drivers;
+Query ID = cloudera_20181206060000_9b513616-4358-41aa-9676-aa75239c1fa6
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1544092721296_0001, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1544092721296_0001/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1544092721296_0001
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0
+2018-12-06 06:01:04,760 Stage-1 map = 0%,  reduce = 0%
+2018-12-06 06:01:13,298 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 1.54 sec
+MapReduce Total cumulative CPU time: 1 seconds 540 msec
+Ended Job = job_1544092721296_0001
+Stage-4 is selected by condition resolver.
+Stage-3 is filtered out by condition resolver.
+Stage-5 is filtered out by condition resolver.
+Moving data to: hdfs://quickstart.cloudera:8020/user/hive/warehouse/drivers/.hive-staging_hive_2018-12-06_06-00-54_099_854915843671519587-1/-ext-10000
+Loading data to table default.drivers
+Table default.drivers stats: [numFiles=1, numRows=35, totalSize=2003, rawDataSize=1968]
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1   Cumulative CPU: 1.54 sec   HDFS Read: 6624 HDFS Write: 2076 SUCCESS
+Total MapReduce CPU Time Spent: 1 seconds 540 msec
+OK
+Time taken: 20.636 seconds
+
+
+8. After loading the data take a look at the drivers table:
+
+	SELECT * FROM drivers;
+
+E.g.
+hive> SELECT * FROM drivers;
+OK
+NULL	name	NULL	location	certified	wage-plan
+10	George Vetticaden	621011971	244-4532 Nulla Rd.	N	miles
+11	Jamie Engesser	262112338	366-4125 Ac Street	N	miles
+12	Paul Coddin	198041975	Ap #622-957 Risus. Street	Y	hours
+13	Joe Niemiec	139907145	2071 Hendrerit. Ave	Y	hours
+14	Adis Cesir	820812209	Ap #810-1228 In St.	Y	hours
+15	Rohit Bakshi	239005227	648-5681 Dui- Rd.	Y	hours
+16	Tom McCuch	363303105	P.O. Box 313- 962 Parturient Rd.	Yhours
+17	Eric Mizell	123808238	P.O. Box 579- 2191 Gravida. Street	Yhours
+18	Grant Liu	171010151	Ap #928-3159 Vestibulum Av.	Y	hours
+19	Ajay Singh	160005158	592-9430 Nonummy Avenue	Y	hours
+20	Chris Harris	921812303	883-2691 Proin Avenue	Y	hours
+21	Jeff Markham	209408086	Ap #852-7966 Facilisis St.	Y	hours
+22	Nadeem Asghar	783204269	154-9147 Aliquam Ave	Y	hours
+23	Adam Diaz	928312208	P.O. Box 260- 6127 Vitae Road	Y	hours
+24	Don Hilborn	254412152	4361 Ac Road	Y	hours
+25	Jean-Philippe Playe	913310051	P.O. Box 812- 6238 Ac Rd.	Yhours
+26	Michael Aube	124705141	P.O. Box 213- 8948 Nec Ave	Y	hours
+27	Mark Lochbihler	392603159	8355 Ipsum St.	Y	hours
+28	Olivier Renault	959908181	P.O. Box 243- 6509 Erat. Avenue	Y	hours
+29	Teddy Choi	185502192	P.O. Box 106- 7003 Amet Rd.	Y	hours
+30	Dan Rice	282307061	Ap #881-9267 Mollis Avenue	Y	hours
+31	Rommel Garcia	858912101	P.O. Box 945- 6015 Sociis St.	Y	hours
+32	Ryan Templeton	290304287	765-6599 Egestas. Av.	Y	hours
+33	Sridhara Sabbella	967409015	Ap #477-2507 Sagittis Avenue	Yhours
+34	Frank Romano	391407216	Ap #753-6814 Quis Ave	Y	hours
+35	Emil Siemes	971401151	321-2976 Felis Rd.	Y	hours
+36	Andrew Grande	245303216	Ap #685-9598 Egestas Rd.	Y	hours
+37	Wes Floyd	190504074	P.O. Box 269- 9611 Nulla Street	Y	hours
+38	Scott Shaw	386411175	276 Lobortis Road	Y	hours
+39	David Kaiser	967706052	9185 At Street	Y	hours
+40	Nicolas Maillard	208510217	1027 Quis Rd.	Y	hours
+41	Greg Phillips	308103116	P.O. Box 847- 5961 Arcu. Road	Y	hours
+42	Randy Gelhausen	853302254	145-4200 In- Avenue	Y	hours
+43	Dave Patton	977706052	3028 A- St.	Y	hours
+Time taken: 0.089 seconds, Fetched: 35 row(s)
+hive>
+
+
+9.CREATE TEMP_TIMESHEET AND TIMESHEET TABLES SIMILARLY
+
+Similarly, we have to create a table called temp_timesheet, then load the sample timesheet.csv file. Type the following queries one by one:
+
+CREATE TABLE temp_timesheet (col_value string) STORED AS TEXTFILE;
+
+E.g.
+hive> CREATE TABLE temp_timesheet (col_value string) STORED AS TEXTFILE;
+OK
+Time taken: 0.071 seconds
+
+hadoop fs -put timesheet.csv /user/cloudera/hive
+
+LOAD DATA INPATH '/user/cloudera/hive/timesheet.csv' OVERWRITE INTO TABLE temp_timesheet;
+
+
+E.g.
+
+hive> LOAD DATA INPATH '/user/cloudera/hive/timesheet.csv' OVERWRITE INTO TABLE temp_timesheet;
+Loading data to table default.temp_timesheet
+chgrp: changing ownership of 'hdfs://quickstart.cloudera:8020/user/hive/warehouse/temp_timesheet/timesheet.csv': User does not belong to supergroup
+Table default.temp_timesheet stats: [numFiles=1, numRows=0, totalSize=26205, rawDataSize=0]
+OK
+Time taken: 0.313 seconds
+
+
+You should see the data like this:
+
+SELECT * FROM temp_timesheet LIMIT 10;
+
+E.g.
+
+hive> SELECT * FROM temp_timesheet LIMIT 10;
+OK
+driverId,week,hours-logged,miles-logged
+10,1,70,3300
+10,2,70,3300
+10,3,60,2800
+10,4,70,3100
+10,5,70,3200
+10,6,70,3300
+10,7,70,3000
+10,8,70,3300
+10,9,70,3200
+Time taken: 0.091 seconds, Fetched: 10 row(s)
+hive>
+
+
+
+10. Now create the table timesheet using the following query:
+
+
+E.g. 
+hive> CREATE TABLE timesheet (driverId INT, week INT, hours_logged INT , miles_logged INT);
+OK
+Time taken: 0.056 seconds
+
+
+11. Insert the data into the table timesheet from temp_timesheet table using the same regexp_extract as we did earlier.
+
+insert overwrite table timesheet
+SELECT
+  regexp_extract(col_value, '^(?:([^,]*),?){1}', 1) driverId,
+  regexp_extract(col_value, '^(?:([^,]*),?){2}', 1) week,
+  regexp_extract(col_value, '^(?:([^,]*),?){3}', 1) hours_logged,
+  regexp_extract(col_value, '^(?:([^,]*),?){4}', 1) miles_logged
+
+from temp_timesheet
+
+E.g.
+
+hive> insert overwrite table timesheet
+    > SELECT
+    >   regexp_extract(col_value, '^(?:([^,]*),?){1}', 1) driverId,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){2}', 1) week,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){3}', 1) hours_logged,
+    >   regexp_extract(col_value, '^(?:([^,]*),?){4}', 1) miles_logged
+    >
+    > from temp_timesheet;
+Query ID = cloudera_20181206060606_d769c32a-44c3-455f-a7d2-0682ffd9da7d
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1544092721296_0002, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1544092721296_0002/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1544092721296_0002
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0
+2018-12-06 06:06:32,472 Stage-1 map = 0%,  reduce = 0%
+2018-12-06 06:06:39,824 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 1.94 sec
+MapReduce Total cumulative CPU time: 1 seconds 940 msec
+Ended Job = job_1544092721296_0002
+Stage-4 is selected by condition resolver.
+Stage-3 is filtered out by condition resolver.
+Stage-5 is filtered out by condition resolver.
+Moving data to: hdfs://quickstart.cloudera:8020/user/hive/warehouse/timesheet/.hive-staging_hive_2018-12-06_06-06-23_249_4054350273776238869-1/-ext-10000
+Loading data to table default.timesheet
+Table default.timesheet stats: [numFiles=1, numRows=1769, totalSize=24410, rawDataSize=22641]
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1   Cumulative CPU: 1.94 sec   HDFS Read: 30560 HDFS Write: 24488 SUCCESS
+Total MapReduce CPU Time Spent: 1 seconds 940 msec
+OK
+Time taken: 19.03 seconds
+
+12. CREATE QUERY TO FILTER THE DATA (DRIVERID, HOURS_LOGGED, MILES_LOGGED)
+
+Now we have the data fields we want. The next step is to group the data by driverId so we can find the sum of hours and miles logged score for an year. This query first groups all the records by driverId and then selects the driver with the sum of the hours and miles logged runs for that year.
+
+SELECT driverId, sum(hours_logged), sum(miles_logged) FROM timesheet GROUP BY driverId
+
+
+E.g.
+
+hive> SELECT driverId, sum(hours_logged), sum(miles_logged) FROM timesheet GROUP BY driverId;
+Query ID = cloudera_20181206060707_853fe2cc-1e52-4ccb-8b97-fff4909a9a5e
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1544092721296_0003, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1544092721296_0003/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1544092721296_0003
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2018-12-06 06:08:01,214 Stage-1 map = 0%,  reduce = 0%
+2018-12-06 06:08:07,589 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 1.23 sec
+2018-12-06 06:08:15,029 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 2.63 sec
+MapReduce Total cumulative CPU time: 2 seconds 630 msec
+Ended Job = job_1544092721296_0003
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 2.63 sec   HDFS Read: 32782 HDFS Write: 519 SUCCESS
+Total MapReduce CPU Time Spent: 2 seconds 630 msec
+OK
+NULL	NULL	NULL
+10	3232	147150
+11	3642	179300
+12	2639	135962
+13	2727	134126
+14	2781	136624
+15	2734	138750
+16	2746	137205
+17	2701	135992
+18	2654	137834
+19	2738	137968
+20	2644	134564
+21	2751	138719
+22	2733	137550
+23	2750	137980
+24	2647	134461
+25	2723	139180
+26	2730	137530
+27	2771	137922
+28	2723	137469
+29	2760	138255
+30	2773	137473
+31	2704	137057
+32	2736	137422
+33	2759	139285
+34	2811	137728
+35	2728	138727
+36	2795	138025
+37	2694	137223
+38	2760	137464
+39	2745	138788
+40	2700	136931
+41	2723	138407
+42	2697	136673
+43	2750	136993
+Time taken: 24.416 seconds, Fetched: 35 row(s)
+
+
+
+13. CREATE QUERY TO JOIN THE DATA (DRIVERID, NAME, HOURS_LOGGED, MILES_LOGGED)
+
+Now we need to go back and get the driverId(s) so we know who the driver(s) was. We can take the previous query and join it with the drivers records to get the final table which will have the driverId, name and the sum of hours and miles logged.
+
+SELECT d.driverId, d.name, t.total_hours, t.total_miles from drivers d
+JOIN (SELECT driverId, sum(hours_logged)total_hours, sum(miles_logged)total_miles FROM timesheet GROUP BY driverId ) t
+ON (d.driverId = t.driverId);
+
+E.g.
+
+hive>
+    > SELECT d.driverId, d.name, t.total_hours, t.total_miles from drivers d
+    > JOIN (SELECT driverId, sum(hours_logged)total_hours, sum(miles_logged)total_miles FROM timesheet GROUP BY driverId ) t
+    > ON (d.driverId = t.driverId);
+Query ID = cloudera_20181206061010_57bf2b2a-064f-4d05-be9c-97deda025262
+Total jobs = 2
+Launching Job 1 out of 2
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1544092721296_0004, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1544092721296_0004/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1544092721296_0004
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2018-12-06 06:10:13,060 Stage-1 map = 0%,  reduce = 0%
+2018-12-06 06:10:20,377 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 1.61 sec
+2018-12-06 06:10:25,653 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 2.8 sec
+MapReduce Total cumulative CPU time: 2 seconds 800 msec
+Ended Job = job_1544092721296_0004
+Execution log at: /tmp/cloudera/cloudera_20181206061010_57bf2b2a-064f-4d05-be9c-97deda025262.log
+2018-12-06 06:10:31	Starting to launch local task to process map join;	maximum memory = 119537664
+2018-12-06 06:10:33	Dump the side-table for tag: 0 with group count: 34 into file: file:/tmp/cloudera/b2e3c9eb-dc5e-414f-8548-78aec1d212ae/hive_2018-12-06_06-10-03_774_3722762194183368575-1/-local-10004/HashTable-Stage-4/MapJoin-mapfile00--.hashtable
+2018-12-06 06:10:33	Uploaded 1 File to: file:/tmp/cloudera/b2e3c9eb-dc5e-414f-8548-78aec1d212ae/hive_2018-12-06_06-10-03_774_3722762194183368575-1/-local-10004/HashTable-Stage-4/MapJoin-mapfile00--.hashtable (1362 bytes)
+2018-12-06 06:10:33	End of local task; Time Taken: 1.485 sec.
+Execution completed successfully
+MapredLocal task succeeded
+Launching Job 2 out of 2
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1544092721296_0005, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1544092721296_0005/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1544092721296_0005
+Hadoop job information for Stage-4: number of mappers: 1; number of reducers: 0
+2018-12-06 06:10:41,622 Stage-4 map = 0%,  reduce = 0%
+2018-12-06 06:10:47,930 Stage-4 map = 100%,  reduce = 0%, Cumulative CPU 1.24 sec
+MapReduce Total cumulative CPU time: 1 seconds 240 msec
+Ended Job = job_1544092721296_0005
+MapReduce Jobs Launched:
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 2.8 sec   HDFS Read: 31952 HDFS Write: 946 SUCCESS
+Stage-Stage-4: Map: 1   Cumulative CPU: 1.24 sec   HDFS Read: 6900 HDFS Write: 961 SUCCESS
+Total MapReduce CPU Time Spent: 4 seconds 40 msec
+OK
+10	George Vetticaden	3232	147150
+11	Jamie Engesser	3642	179300
+12	Paul Coddin	2639	135962
+13	Joe Niemiec	2727	134126
+14	Adis Cesir	2781	136624
+15	Rohit Bakshi	2734	138750
+16	Tom McCuch	2746	137205
+17	Eric Mizell	2701	135992
+18	Grant Liu	2654	137834
+19	Ajay Singh	2738	137968
+20	Chris Harris	2644	134564
+21	Jeff Markham	2751	138719
+22	Nadeem Asghar	2733	137550
+23	Adam Diaz	2750	137980
+24	Don Hilborn	2647	134461
+25	Jean-Philippe Playe	2723	139180
+26	Michael Aube	2730	137530
+27	Mark Lochbihler	2771	137922
+28	Olivier Renault	2723	137469
+29	Teddy Choi	2760	138255
+30	Dan Rice	2773	137473
+31	Rommel Garcia	2704	137057
+32	Ryan Templeton	2736	137422
+33	Sridhara Sabbella	2759	139285
+34	Frank Romano	2811	137728
+35	Emil Siemes	2728	138727
+36	Andrew Grande	2795	138025
+37	Wes Floyd	2694	137223
+38	Scott Shaw	2760	137464
+39	David Kaiser	2745	138788
+40	Nicolas Maillard	2700	136931
+41	Greg Phillips	2723	138407
+42	Randy Gelhausen	2697	136673
+43	Dave Patton	2750	136993
+Time taken: 45.413 seconds, Fetched: 34 row(s)
+
+
+
+
+SUMMARY
+Congratulations on completing this tutorial! We just learned how to upload data into HDFS Files View and create hive queries to manipulate data. Let’s review all the queries that were utilized in this tutorial: CREATE, LOAD, INSERT, SELECT, FROM, GROUP BY, JOIN and ON. With these queries, we created a table temp_drivers to store the data. We created another table drivers, so we can overwrite that table with extracted data from the temp_drivers table we created earlier. Then we did the same for temp_timesheet and timesheet. Finally, created queries to filter the data to have the result show the sum of hours and miles logged by each driver.
+
+
+So now we have our results. As described earlier we solved this problem using Hive step by step. At any time we were free to look around at the data, decide we needed to do another task and come back. At all times the data is live and accessible to us.
