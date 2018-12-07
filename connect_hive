@@ -1,0 +1,1 @@
+ssh -l cloudera ec2-18-234-166-74.compute-1.amazonaws.com
